@@ -23,3 +23,41 @@ export function renderTable(records, re) {
         </tr>
     `).join('');
 }
+export function renderStats(stats, last7) {
+    document.getElementById('stat-count').textContent = stats.count;
+    document.getElementById('stat-sum').textContent = stats.sum.toFixed(2);
+    document.getElementById('stat-top').textContent = stats.top;
+
+    const trend = document.getElementById('trend');
+    const max = Math.max(...last7.map(d => d.total));
+    trend.innerHTML = last7.map(d => {
+        let pct = 0;
+        if (max > 0 && d.total > 0) pct = Math.max((d.total / max) * 100, 4);
+        return '<div class="bar" style="height:' + pct + '%" title="' +
+            d.date + ': ' + d.total.toFixed(2) + '"></div>';
+    }).join('');
+    trend.setAttribute('aria-label', 'Spending over the last 7 days: ' +
+        last7.map(d => d.date + ' ' + d.total.toFixed(2)).join(', '));
+}
+
+export function renderCap(total, cap) {
+    const el = document.getElementById('cap-message');
+    el.classList.remove('over', 'under');
+
+    if (!cap || cap <= 0) {
+        el.setAttribute('aria-live', 'polite');
+        el.textContent = 'No spending cap set. You can set one in Settings.';
+        return;
+    }
+
+    const diff = cap - total;
+    if (diff >= 0) {
+        el.setAttribute('aria-live', 'polite');
+        el.classList.add('under');
+        el.textContent = diff.toFixed(2) + ' left under your cap of ' + cap.toFixed(2) + '.';
+    } else {
+        el.setAttribute('aria-live', 'assertive');
+        el.classList.add('over');
+        el.textContent = 'Over your cap by ' + Math.abs(diff).toFixed(2) + ' (cap is ' + cap.toFixed(2) + ').';
+    }
+}

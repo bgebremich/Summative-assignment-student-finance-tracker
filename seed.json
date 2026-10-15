@@ -1,15 +1,27 @@
 [
   {"id":"rec_0001","description":"Lunch at cafeteria","amount":12.50,"category":"Food","date":"2026-10-14","createdAt":"2026-10-14T09:00:00.000Z","updatedAt":"2026-10-14T09:00:00.000Z"},
+  
   {"id":"rec_0002","description":"Chemistry textbook","amount":89.99,"category":"Books","date":"2026-10-13","createdAt":"2026-10-13T10:00:00.000Z","updatedAt":"2026-10-13T10:00:00.000Z"},
+  
   {"id":"rec_0003","description":"Bus pass","amount":45.00,"category":"Transport","date":"2026-10-12","createdAt":"2026-10-12T08:00:00.000Z","updatedAt":"2026-10-12T08:00:00.000Z"},
+  
   {"id":"rec_0004","description":"Coffee with friends","amount":8.75,"category":"Entertainment","date":"2026-10-11","createdAt":"2026-10-11T15:00:00.000Z","updatedAt":"2026-10-11T15:00:00.000Z"},
+  
   {"id":"rec_0005","description":"Tuition late fee","amount":1250.00,"category":"Fees","date":"2025-01-01","createdAt":"2025-01-01T00:00:00.000Z","updatedAt":"2025-01-01T00:00:00.000Z"},
+  
   {"id":"rec_0006","description":"Leap day movie","amount":0.01,"category":"Entertainment","date":"2024-02-29","createdAt":"2024-02-29T20:00:00.000Z","updatedAt":"2024-02-29T20:00:00.000Z"},
+  
   {"id":"rec_0007","description":"Tea & snacks <promo>","amount":3.20,"category":"Food","date":"2026-10-10","createdAt":"2026-10-10T12:00:00.000Z","updatedAt":"2026-10-10T12:00:00.000Z"},
+  
   {"id":"rec_0008","description":"Notebook notebook bundle","amount":6.5,"category":"Books","date":"2026-10-09","createdAt":"2026-10-09T11:00:00.000Z","updatedAt":"2026-10-09T11:00:00.000Z"},
+  
   {"id":"rec_0009","description":"Matatu to town","amount":1.10,"category":"Transport","date":"2025-12-31","createdAt":"2025-12-31T18:00:00.000Z","updatedAt":"2025-12-31T18:00:00.000Z"},
+  
   {"id":"rec_0010","description":"Free sample pack","amount":0,"category":"Other","date":"2026-10-14","createdAt":"2026-10-14T13:00:00.000Z","updatedAt":"2026-10-14T13:00:00.000Z"},
+  
   {"id":"rec_0011","description":"Laptop repair","amount":2500000,"category":"Fees","date":"2026-10-08","createdAt":"2026-10-08T14:00:00.000Z","updatedAt":"2026-10-08T14:00:00.000Z"},
+  
   {"id":"rec_0012","description":"Late night pizza","amount":14.75,"category":"Fast-food","date":"2026-10-12","createdAt":"2026-10-12T22:00:00.000Z","updatedAt":"2026-10-12T22:00:00.000Z"},
+  
   {"id":"rec_0013","description":"Iced tea and coffee","amount":5.50,"category":"Food","date":"2026-10-13","createdAt":"2026-10-13T16:00:00.000Z","updatedAt":"2026-10-13T16:00:00.000Z"}
 ]
