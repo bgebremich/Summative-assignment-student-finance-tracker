@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validator tests</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 24px auto; padding: 0 16px; }
+        .pass { color: #166534; }
+        .fail { color: #b91c1c; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <h1>Validator tests</h1>
+    <p id="summary" role="status"></p>
+    <ul id="results"></ul>
+
+    <script type="module">
+        import {
+            validateDescription, validateAmount, validateDate, validateCategory
+        } from './scripts/validators.js';
+
+        const list = document.getElementById('results');
+        let passed = 0;
+        let failed = 0;
+
+        function check(name, condition) {
+            const li = document.createElement('li');
+            li.textContent = (condition ? 'PASS: ' : 'FAIL: ') + name;
+            li.className = condition ? 'pass' : 'fail';
+            list.appendChild(li);
+            condition ? passed++ : failed++;
+        }
+
+        const ok = msg => msg === '';
+
+        // Description
+        check('description: normal text is valid', ok(validateDescription('Lunch at cafeteria')));
+        check('description: leading space rejected', !ok(validateDescription(' Lunch')));
+        check('description: trailing space rejected', !ok(validateDescription('Lunch ')));
+        check('description: double space rejected', !ok(validateDescription('Lunch  at')));
+        check('description: duplicate word rejected', !ok(validateDescription('coffee coffee')));
+        check('description: duplicate word ignores case', !ok(validateDescription('Coffee coffee')));
+        check('description: empty rejected', !ok(validateDescription('')));
+
+        // Amount
+        check('amount: 12.50 valid', ok(validateAmount('12.50')));
+        check('amount: 0 valid', ok(validateAmount('0')));
+        check('amount: 007 rejected', !ok(validateAmount('007')));
+        check('amount: 1.234 rejected', !ok(validateAmount('1.234')));
+        check('amount: negative rejected', !ok(validateAmount('-5')));
+        check('amount: letters rejected', !ok(validateAmount('abc')));
+
+        // Date
+        check('date: 2025-09-29 valid', ok(validateDate('2025-09-29')));
+        check('date: 2024-02-29 valid (leap year)', ok(validateDate('2024-02-29')));
+        check('date: 2025-02-30 rejected', !ok(validateDate('2025-02-30')));
+        check('date: month 13 rejected', !ok(validateDate('2025-13-01')));
+        check('date: wrong format rejected', !ok(validateDate('29/09/2025')));
+
+        // Category
+        check('category: Food valid', ok(validateCategory('Food')));
+        check('category: Fast-food valid', ok(validateCategory('Fast-food')));
+        check('category: Eating out valid', ok(validateCategory('Eating out')));
+        check('category: digits rejected', !ok(validateCategory('Food2')));
+        check('category: leading hyphen rejected', !ok(validateCategory('-Food')));
+
+        document.getElementById('summary').textContent =
+            passed + ' passed, ' + failed + ' failed';
+    </script>
+</body>
+</html>

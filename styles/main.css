@@ -1,0 +1,166 @@
+:root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #4b5563;
+    --primary: #1d4ed8;
+    --primary-dark: #1e3a8a;
+    --danger: #b91c1c;
+    --border: #cbd5e1;
+    --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+}
+
+:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    left: 8px;
+    top: -60px;
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    z-index: 10;
+}
+.skip-link:focus { top: 8px; }
+header {
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 16px;
+}
+header h1 { margin: 0 0 8px; font-size: 1.4rem; }
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+nav a {
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    transition: background 0.2s ease;
+}
+nav a:hover { background: rgba(255, 255, 255, 0.2); }
+
+main { padding: 16px; max-width: 1100px; margin: 0 auto; }
+
+main section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.4s ease both;
+}
+
+.stats { display: flex; flex-direction: column; gap: 12px; }
+.stat-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+}
+.stat-card h3 { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.stat-card p { margin: 4px 0 0; font-size: 1.6rem; font-weight: 700; }
+
+.trend {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 120px;
+    padding: 8px;
+    border-bottom: 2px solid var(--border);
+}
+.trend .bar {
+    flex: 1;
+    background: var(--primary);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.4s ease;
+}
+
+footer { text-align: center; padding: 16px; color: var(--muted); }
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+label { display: block; font-weight: 600; margin-bottom: 4px; }
+
+input[type="text"], select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font: inherit;
+}
+input[type="checkbox"] { margin-right: 6px; }
+label[for="case-toggle"] { display: inline; }
+
+.field { margin-bottom: 12px; }
+.controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+
+.error { display: block; min-height: 1.2em; color: var(--danger); font-size: 0.875rem; }
+input.invalid { border-color: var(--danger); }
+
+button {
+    font: inherit;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--primary);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+button:hover { background: var(--primary-dark); }
+button:active { transform: scale(0.97); }
+button.danger { background: var(--danger); }
+
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+caption { text-align: left; font-weight: 700; padding-bottom: 8px; }
+th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { background: #e2e8f0; }
+
+mark { background: #fde68a; color: #1f2937; padding: 0 2px; border-radius: 2px; }
+
+#cap-message.over { color: var(--danger); font-weight: 700; }
+#cap-message.under { color: #166534; }
+@media (min-width: 768px) {
+    header { display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin: 0; }
+    .stats { flex-direction: row; }
+    .stat-card { flex: 1; }
+    .controls { flex-direction: row; align-items: flex-end; flex-wrap: wrap; }
+    .controls > div { flex: 1; min-width: 200px; }
+    table { display: table; }
+}
+
+@media (min-width: 1024px) {
+    main { padding: 24px; }
+    main section { padding: 24px; }
+    #form form { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    #form .field:nth-of-type(n) { margin-bottom: 12px; }
+    header h1 { font-size: 1.8rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
