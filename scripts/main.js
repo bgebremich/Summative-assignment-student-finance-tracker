@@ -1,68 +1,13 @@
-import { loadRecords, saveRecords, loadSettings } from './storage.js';
-import { state, setRecords, getVisibleRecords } from './state.js';
-import { compileRegex } from './search.js';
-import { renderTable } from './ui.js';
-
-const searchInput = document.getElementById('search-input');
-const caseToggle = document.getElementById('case-toggle');
-const sortSelect = document.getElementById('sort-select');
-const searchStatus = document.getElementById('search-status');
-
-function render() {
-    const query = searchInput.value;
-    const re = compileRegex(query, caseToggle.checked);
-    const badPattern = query !== '' && re === null;
-
-    searchInput.setAttribute('aria-invalid', badPattern ? 'true' : 'false');
-
-    const rows = getVisibleRecords(badPattern ? null : re);
-    renderTable(rows, badPattern ? null : re);
-
-    if (badPattern) {
-        searchStatus.textContent = 'That pattern is not valid yet. Showing all records.';
-    } else if (query) {
-        searchStatus.textContent = rows.length + ' record(s) match.';
-    } else {
-        searchStatus.textContent = '';
-    }
-}
-
-async function init() {
-    const stored = loadRecords();
-    if (stored === null) {
-        try {
-            const res = await fetch('seed.json');
-            setRecords(await res.json());
-        } catch (err) {
-            console.error('Could not load seed data:', err);
-            setRecords([]);
-        }
-        saveRecords(state.records);
-    } else {
-        setRecords(stored);
-    }
-
-    state.settings = loadSettings();
-    render();
-}
-
-searchInput.addEventListener('input', render);
-caseToggle.addEventListener('change', render);
-sortSelect.addEventListener('change', () => {
-    state.sortKey = sortSelect.value;
-    render();
-});
-
-init();
 import { loadRecords, saveRecords, loadSettings, saveSettings } from './storage.js';
 import {
     state, setRecords, getVisibleRecords,
     addRecord, updateRecord, deleteRecord, getStats, getLast7Days
 } from './state.js';
 import { compileRegex } from './search.js';
-import { renderTable, renderStats, renderCap } from './ui.js';
+import { renderTable, renderStats, renderCap, renderConverted } from './ui.js';
 import {
-    validateDescription, validateAmount, validateCategory, validateDate, validateRecord
+    validateDescription, validateAmount, validateCategory, validateDate,
+    validateRecord, validateImport
 } from './validators.js';
 
 
@@ -99,6 +44,13 @@ const checkers = {
 
 const capInput = document.getElementById('cap-input');
 const capError = document.getElementById('cap-error');
+const exportBtn = document.getElementById('export-btn');
+const importFile = document.getElementById('import-file');
+const dataStatus = document.getElementById('data-status');
+const baseSelect = document.getElementById('base-currency');
+const rateEur = document.getElementById('rate-eur');
+const rateRwf = document.getElementById('rate-rwf');
+const currencyStatus = document.getElementById('currency-status');
 
 function render() {
     const query = searchInput.value;
@@ -121,6 +73,7 @@ function render() {
     const stats = getStats();
     renderStats(stats, getLast7Days());
     renderCap(stats.sum, state.settings ? state.settings.cap : 0);
+    renderConverted(stats.sum, state.settings);
 }
 
 function persistAndRender() {
@@ -251,6 +204,76 @@ capInput.addEventListener('input', () => {
     render();
 });
 
+exportBtn.addEventListener('click', () => {
+    const json = JSON.stringify(state.records, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'finance-tracker-export.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    dataStatus.textContent = 'Exported ' + state.records.length + ' record(s).';
+});
+
+importFile.addEventListener('change', async () => {
+    const file = importFile.files[0];
+    if (!file) return;
+
+    try {
+        const data = JSON.parse(await file.text());
+        const result = validateImport(data);
+
+        if (!result.valid) {
+            dataStatus.textContent = 'Import failed: ' + result.error;
+            return;
+        }
+        if (!confirm('Replace your ' + state.records.length + ' record(s) with the ' +
+            data.length + ' in this file?')) {
+            dataStatus.textContent = 'Import cancelled.';
+            return;
+        }
+
+        setRecords(data);
+        resetForm();
+        persistAndRender();
+        dataStatus.textContent = 'Imported ' + data.length + ' record(s).';
+    } catch (err) {
+        dataStatus.textContent = 'Import failed: that file is not valid JSON.';
+    } finally {
+        importFile.value = '';
+    }
+});
+
+function checkRate(input) {
+    const value = input.value.trim();
+    if (value === '') return 'Enter a rate.';
+    const msg = validateAmount(value);
+    if (msg) return msg;
+    if (Number(value) === 0) return 'A rate must be more than 0.';
+    return '';
+}
+
+baseSelect.addEventListener('change', () => {
+    state.settings.baseCurrency = baseSelect.value;
+    saveSettings(state.settings);
+    render();
+});
+
+for (const [code, input] of [['EUR', rateEur], ['RWF', rateRwf]]) {
+    input.addEventListener('input', () => {
+        const msg = checkRate(input);
+        currencyStatus.textContent = msg;
+        input.classList.toggle('invalid', msg !== '');
+        input.setAttribute('aria-invalid', msg !== '' ? 'true' : 'false');
+        if (msg) return;
+
+        state.settings.rates[code] = Number(input.value);
+        saveSettings(state.settings);
+        render();
+    });
+}
+
 
 async function init() {
     const stored = loadRecords();
@@ -269,6 +292,9 @@ async function init() {
 
     state.settings = loadSettings();
     capInput.value = state.settings.cap ? String(state.settings.cap) : '';
+    baseSelect.value = state.settings.baseCurrency;
+    rateEur.value = String(state.settings.rates.EUR);
+    rateRwf.value = String(state.settings.rates.RWF);
     render();
 }
 

@@ -61,3 +61,16 @@ export function renderCap(total, cap) {
         el.textContent = 'Over your cap by ' + Math.abs(diff).toFixed(2) + ' (cap is ' + cap.toFixed(2) + ').';
     }
 }
+export function renderConverted(total, settings) {
+    const el = document.getElementById('stat-converted');
+    const rates = { USD: 1, ...settings.rates };
+    const base = settings.baseCurrency;
+    const inUsd = total / rates[base];
+
+    const others = Object.keys(rates)
+        .filter(code => code !== base)
+        .map(code => (inUsd * rates[code]).toFixed(2) + ' ' + code);
+
+    el.textContent = 'Total in ' + base + ': ' + total.toFixed(2) +
+        '. About ' + others.join(' or ') + '.';
+}

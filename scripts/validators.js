@@ -54,3 +54,40 @@ export function validateRecord(data) {
     const valid = Object.values(errors).every(msg => msg === '');
     return { valid, errors };
 }
+export function validateImport(data) {
+    if (!Array.isArray(data)) {
+        return { valid: false, error: 'The file must contain a list of records.' };
+    }
+    const seen = new Set();
+    for (let i = 0; i < data.length; i++) {
+        const r = data[i];
+        const row = 'Record ' + (i + 1) + ': ';
+
+        if (typeof r !== 'object' || r === null) {
+            return { valid: false, error: row + 'is not an object.' };
+        }
+        if (typeof r.id !== 'string' || r.id === '') {
+            return { valid: false, error: row + 'missing id.' };
+        }
+        if (seen.has(r.id)) {
+            return { valid: false, error: row + 'duplicate id ' + r.id + '.' };
+        }
+        seen.add(r.id);
+        if (typeof r.description !== 'string' || r.description.trim() === '') {
+            return { valid: false, error: row + 'missing description.' };
+        }
+        if (typeof r.amount !== 'number' || !Number.isFinite(r.amount) || r.amount < 0) {
+            return { valid: false, error: row + 'amount must be a number of 0 or more.' };
+        }
+        if (typeof r.category !== 'string' || validateCategory(r.category) !== '') {
+            return { valid: false, error: row + 'invalid category.' };
+        }
+        if (typeof r.date !== 'string' || validateDate(r.date) !== '') {
+            return { valid: false, error: row + 'invalid date.' };
+        }
+        if (typeof r.createdAt !== 'string' || typeof r.updatedAt !== 'string') {
+            return { valid: false, error: row + 'missing timestamps.' };
+        }
+    }
+    return { valid: true, error: '' };
+}
