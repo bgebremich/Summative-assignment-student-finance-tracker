@@ -1,6 +1,6 @@
 import { highlight, escapeHtml } from './search.js';
 
-export function renderTable(records, re) {
+export function renderTable(records, re, overIds = new Set()) {
     const body = document.getElementById('records-body');
 
     if (records.length === 0) {
@@ -9,11 +9,11 @@ export function renderTable(records, re) {
     }
 
     body.innerHTML = records.map(r => `
-        <tr data-id="${escapeHtml(r.id)}">
+        <tr data-id="${escapeHtml(r.id)}" class="${overIds.has(r.id) ? 'over-cap' : ''}">
             <td>${highlight(r.date, re)}</td>
             <td>${highlight(r.description, re)}</td>
             <td>${highlight(r.category, re)}</td>
-            <td>${highlight(r.amount.toFixed(2), re)}</td>
+            <td>${highlight(r.amount.toFixed(2), re)}${overIds.has(r.id) ? ' <span class="badge">Over cap</span>' : ''}</td>
             <td>
                 <button type="button" class="edit-btn" data-id="${escapeHtml(r.id)}"
                     aria-label="Edit ${escapeHtml(r.description)}">Edit</button>
@@ -23,6 +23,7 @@ export function renderTable(records, re) {
         </tr>
     `).join('');
 }
+
 export function renderStats(stats, last7) {
     document.getElementById('stat-count').textContent = stats.count;
     document.getElementById('stat-sum').textContent = stats.sum.toFixed(2);
@@ -61,6 +62,7 @@ export function renderCap(total, cap) {
         el.textContent = 'Over your cap by ' + Math.abs(diff).toFixed(2) + ' (cap is ' + cap.toFixed(2) + ').';
     }
 }
+
 export function renderConverted(total, settings) {
     const el = document.getElementById('stat-converted');
     const rates = { USD: 1, ...settings.rates };

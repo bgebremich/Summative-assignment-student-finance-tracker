@@ -1,7 +1,7 @@
 import { loadRecords, saveRecords, loadSettings, saveSettings } from './storage.js';
 import {
     state, setRecords, getVisibleRecords,
-    addRecord, updateRecord, deleteRecord, getStats, getLast7Days
+    addRecord, updateRecord, deleteRecord, getStats, getLast7Days, getOverCapIds
 } from './state.js';
 import { compileRegex } from './search.js';
 import { renderTable, renderStats, renderCap, renderConverted } from './ui.js';
@@ -51,6 +51,8 @@ const baseSelect = document.getElementById('base-currency');
 const rateEur = document.getElementById('rate-eur');
 const rateRwf = document.getElementById('rate-rwf');
 const currencyStatus = document.getElementById('currency-status');
+const saveSettingsBtn = document.getElementById('save-settings-btn');
+const settingsStatus = document.getElementById('settings-status');
 
 function render() {
     const query = searchInput.value;
@@ -60,7 +62,7 @@ function render() {
     searchInput.setAttribute('aria-invalid', badPattern ? 'true' : 'false');
 
     const rows = getVisibleRecords(badPattern ? null : re);
-    renderTable(rows, badPattern ? null : re);
+    renderTable(rows, badPattern ? null : re, getOverCapIds(state.settings ? state.settings.cap : 0));
 
     if (badPattern) {
         searchStatus.textContent = 'That pattern is not valid yet. Showing all records.';
@@ -273,6 +275,24 @@ for (const [code, input] of [['EUR', rateEur], ['RWF', rateRwf]]) {
         render();
     });
 }
+
+saveSettingsBtn.addEventListener('click', () => {
+    const capValue = capInput.value.trim();
+    const capMsg = capValue === '' ? '' : validateAmount(capValue);
+
+    if (capMsg || checkRate(rateEur) || checkRate(rateRwf)) {
+        settingsStatus.textContent = 'Please fix the highlighted settings first.';
+        return;
+    }
+
+    state.settings.baseCurrency = baseSelect.value;
+    state.settings.rates.EUR = Number(rateEur.value);
+    state.settings.rates.RWF = Number(rateRwf.value);
+    state.settings.cap = capValue === '' ? 0 : Number(capValue);
+    saveSettings(state.settings);
+    render();
+    settingsStatus.textContent = 'Settings saved.';
+});
 
 
 async function init() {

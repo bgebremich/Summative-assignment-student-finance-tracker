@@ -34,6 +34,7 @@ export function getVisibleRecords(re) {
         : [...state.records];
     return matches.sort(sorters[state.sortKey] || sorters['date-desc']);
 }
+
 export function addRecord(data) {
     const now = new Date().toISOString();
     const rec = {
@@ -98,4 +99,17 @@ export function getLast7Days() {
         if (day) day.total += r.amount;
     }
     return days;
+}
+
+export function getOverCapIds(cap) {
+    const ids = new Set();
+    if (!cap || cap <= 0) return ids;
+
+    let running = 0;
+    const oldestFirst = [...state.records].sort((a, b) => a.date.localeCompare(b.date));
+    for (const r of oldestFirst) {
+        running += r.amount;
+        if (running > cap) ids.add(r.id);
+    }
+    return ids;
 }
