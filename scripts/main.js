@@ -1,7 +1,8 @@
 import { loadRecords, saveRecords, loadSettings, saveSettings } from './storage.js';
 import {
     state, setRecords, getVisibleRecords,
-    addRecord, updateRecord, deleteRecord, getStats, getLast7Days, getOverCapIds
+    addRecord, updateRecord, deleteRecord, getStats, getLast7Days,
+    getCapCrossingId, convertAll
 } from './state.js';
 import { compileRegex } from './search.js';
 import { renderTable, renderStats, renderCap, renderConverted } from './ui.js';
@@ -15,6 +16,7 @@ const searchInput = document.getElementById('search-input');
 const caseToggle = document.getElementById('case-toggle');
 const sortSelect = document.getElementById('sort-select');
 const searchStatus = document.getElementById('search-status');
+const amountTh = document.getElementById('amount-th');
 
 
 const form = document.getElementById('record-form');
@@ -58,11 +60,14 @@ function render() {
     const query = searchInput.value;
     const re = compileRegex(query, caseToggle.checked);
     const badPattern = query !== '' && re === null;
+    const cap = state.settings ? state.settings.cap : 0;
+    const code = state.settings ? state.settings.baseCurrency : 'USD';
 
     searchInput.setAttribute('aria-invalid', badPattern ? 'true' : 'false');
+    amountTh.textContent = 'Amount (' + code + ')';
 
     const rows = getVisibleRecords(badPattern ? null : re);
-    renderTable(rows, badPattern ? null : re, getOverCapIds(state.settings ? state.settings.cap : 0));
+    renderTable(rows, badPattern ? null : re, getCapCrossingId(cap));
 
     if (badPattern) {
         searchStatus.textContent = 'That pattern is not valid yet. Showing all records.';
@@ -74,7 +79,7 @@ function render() {
 
     const stats = getStats();
     renderStats(stats, getLast7Days());
-    renderCap(stats.sum, state.settings ? state.settings.cap : 0);
+    renderCap(stats.sum, cap, code);
     renderConverted(stats.sum, state.settings);
 }
 
@@ -257,9 +262,17 @@ function checkRate(input) {
 }
 
 baseSelect.addEventListener('change', () => {
-    state.settings.baseCurrency = baseSelect.value;
+    const from = state.settings.baseCurrency;
+    const to = baseSelect.value;
+
+    convertAll(from, to, state.settings.rates);
+    state.settings.baseCurrency = to;
     saveSettings(state.settings);
+    saveRecords(state.records);
+
+    capInput.value = state.settings.cap ? String(state.settings.cap) : '';
     render();
+    settingsStatus.textContent = 'Amounts converted from ' + from + ' to ' + to + '.';
 });
 
 for (const [code, input] of [['EUR', rateEur], ['RWF', rateRwf]]) {
@@ -285,7 +298,6 @@ saveSettingsBtn.addEventListener('click', () => {
         return;
     }
 
-    state.settings.baseCurrency = baseSelect.value;
     state.settings.rates.EUR = Number(rateEur.value);
     state.settings.rates.RWF = Number(rateRwf.value);
     state.settings.cap = capValue === '' ? 0 : Number(capValue);

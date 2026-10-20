@@ -29,12 +29,13 @@
             <p>This app helps students track spending, set a budget cap, and search their records with regular expressions.</p>
             <p>
                 GitHub: <a href="https://github.com/bgebremich">bgebremich</a><br>
-                Email: <a href="mailto:YOUR-EMAIL@example.com">YOUR-EMAIL@example.com</a>
+                Email: <a href="mailto:b.gebremich@alustudent.com">b.gebremich@alustudent.com</a>
             </p>
         </section>
 
         <section id="dashboard" aria-labelledby="dashboard-title">
             <h2 id="dashboard-title">Dashboard</h2>
+
             <div class="stats">
                 <div class="stat-card">
                     <h3>Total records</h3>
@@ -48,11 +49,23 @@
                     <h3>Top category</h3>
                     <p id="stat-top">None</p>
                 </div>
-                <p id="stat-converted"></p>
             </div>
+            <p id="stat-converted" class="muted"></p>
+
+            <div class="budget">
+                <div class="budget-head">
+                    <h3 id="budget-label">Spending cap</h3>
+                    <span id="budget-numbers">No cap set</span>
+                </div>
+                <div class="progress" id="budget-bar" role="progressbar" aria-labelledby="budget-label"
+                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div class="progress-fill" id="budget-fill"></div>
+                </div>
+                <p id="cap-message" aria-live="polite"></p>
+            </div>
+
             <h3>Last 7 days</h3>
             <div id="trend" class="trend" role="img" aria-label="Spending over the last 7 days"></div>
-            <p id="cap-message" aria-live="polite"></p>
         </section>
 
         <section id="records" aria-labelledby="records-title">
@@ -63,7 +76,7 @@
                     <label for="search-input">Search (regex)</label>
                     <input type="text" id="search-input" name="search" placeholder="e.g. (coffee|tea)">
                 </div>
-                <div>
+                <div class="check">
                     <input type="checkbox" id="case-toggle" name="case" checked>
                     <label for="case-toggle">Ignore case</label>
                 </div>
@@ -81,19 +94,21 @@
             </div>
             <p id="search-status" role="status"></p>
 
-            <table>
-                <caption>Your transactions</caption>
-                <thead>
-                    <tr>
-                        <th scope="col">Date</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="records-body"></tbody>
-            </table>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Transactions table, scrolls sideways on small screens">
+                <table>
+                    <caption>Your transactions</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Category</th>
+                            <th scope="col" class="num" id="amount-th">Amount</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="records-body"></tbody>
+                </table>
+            </div>
         </section>
 
         <section id="form" aria-labelledby="form-title">
@@ -101,21 +116,21 @@
             <form id="record-form" novalidate>
                 <input type="hidden" id="record-id" name="id">
 
-                <div class="field">
+                <div class="field wide">
                     <label for="description">Description</label>
-                    <input type="text" id="description" name="description" required>
+                    <input type="text" id="description" name="description" placeholder="e.g. Lunch at cafeteria" required>
                     <span class="error" id="description-error"></span>
                 </div>
 
                 <div class="field">
                     <label for="amount">Amount</label>
-                    <input type="text" id="amount" name="amount" inputmode="decimal" required>
+                    <input type="text" id="amount" name="amount" inputmode="decimal" placeholder="e.g. 12.50" required>
                     <span class="error" id="amount-error"></span>
                 </div>
 
                 <div class="field">
                     <label for="category">Category</label>
-                    <input type="text" id="category" name="category" list="category-list" required>
+                    <input type="text" id="category" name="category" list="category-list" placeholder="e.g. Food" required>
                     <datalist id="category-list">
                         <option value="Food">
                         <option value="Books">
@@ -129,52 +144,57 @@
 
                 <div class="field">
                     <label for="date">Date (YYYY-MM-DD)</label>
-                    <input type="text" id="date" name="date" placeholder="2025-09-29" required>
+                    <input type="text" id="date" name="date" placeholder="2026-10-19" required>
                     <span class="error" id="date-error"></span>
                 </div>
 
-                <button type="submit" id="save-btn">Save record</button>
-                <button type="button" id="cancel-btn">Cancel</button>
+                <div class="form-actions">
+                    <button type="submit" id="save-btn">Save record</button>
+                    <button type="button" id="cancel-btn" class="secondary">Cancel</button>
+                </div>
                 <p id="form-status" role="status"></p>
             </form>
         </section>
 
         <section id="settings" aria-labelledby="settings-title">
             <h2 id="settings-title">Settings</h2>
+            <p class="muted">Changing the base currency converts your saved amounts and your cap using the rates below.</p>
 
-            <div class="field">
-                <label for="base-currency">Base currency</label>
-                <select id="base-currency" name="baseCurrency">
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="RWF">RWF</option>
-                </select>
-            </div>
+            <div class="settings-grid">
+                <div class="field">
+                    <label for="base-currency">Base currency</label>
+                    <select id="base-currency" name="baseCurrency">
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="RWF">RWF</option>
+                    </select>
+                </div>
 
-            <div class="field">
-                <label for="rate-eur">1 USD = how many EUR?</label>
-                <input type="text" id="rate-eur" name="rateEur" inputmode="decimal">
-            </div>
+                <div class="field">
+                    <label for="cap-input">Spending cap</label>
+                    <input type="text" id="cap-input" name="cap" inputmode="decimal" placeholder="Leave empty for no cap">
+                    <span class="error" id="cap-error"></span>
+                </div>
 
-            <div class="field">
-                <label for="rate-rwf">1 USD = how many RWF?</label>
-                <input type="text" id="rate-rwf" name="rateRwf" inputmode="decimal">
-            </div>
-            <p id="currency-status" role="status"></p>
+                <div class="field">
+                    <label for="rate-eur">1 USD = how many EUR?</label>
+                    <input type="text" id="rate-eur" name="rateEur" inputmode="decimal">
+                </div>
 
-            <div class="field">
-                <label for="cap-input">Spending cap</label>
-                <input type="text" id="cap-input" name="cap" inputmode="decimal">
-                <span class="error" id="cap-error"></span>
+                <div class="field">
+                    <label for="rate-rwf">1 USD = how many RWF?</label>
+                    <input type="text" id="rate-rwf" name="rateRwf" inputmode="decimal">
+                </div>
             </div>
+            <p id="currency-status" class="error" role="status"></p>
 
             <button type="button" id="save-settings-btn">Save settings</button>
             <p id="settings-status" role="status"></p>
 
-            <button type="button" id="save-settings-btn">Save settings</button>
-            <p id="settings-status" role="status"></p>
             <h3>Data</h3>
-            <button type="button" id="export-btn">Export JSON</button>
+            <div class="data-actions">
+                <button type="button" id="export-btn" class="outline">Export JSON</button>
+            </div>
             <div class="field">
                 <label for="import-file">Import JSON</label>
                 <input type="file" id="import-file" name="importFile" accept=".json">
@@ -185,7 +205,7 @@
     </main>
 
     <footer>
-        <p>Student Finance Tracker. Built by bgebremich.</p>
+        <p>Student Finance Tracker. Built by Bemnet Tenketem.</p>
     </footer>
 
     <script type="module" src="scripts/main.js"></script>

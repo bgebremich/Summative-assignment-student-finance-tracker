@@ -1,3 +1,5 @@
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 export function compileRegex(input, ignoreCase = true) {
     try {
         return input ? new RegExp(input, ignoreCase ? 'i' : '') : null;
@@ -31,4 +33,20 @@ export function highlight(text, re) {
         last = match.index + match[0].length;
     }
     return result + escapeHtml(str.slice(last));
+}
+
+// 2026-10-29 -> 29 Oct 2026 (year last, for display only)
+export function formatDate(iso) {
+    const [year, month, day] = String(iso).split('-');
+    const name = MONTHS[Number(month) - 1];
+    if (!year || !day || !name) return String(iso);
+    return Number(day) + ' ' + name + ' ' + year;
+}
+
+// 2500000 -> 2,500,000.00
+export function formatAmount(value) {
+    return Number(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }

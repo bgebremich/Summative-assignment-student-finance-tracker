@@ -1,3 +1,5 @@
+import { formatDate, formatAmount } from './search.js';
+
 export const state = {
     records: [],
     settings: null,
@@ -29,8 +31,8 @@ export function getVisibleRecords(re) {
         ? state.records.filter(r =>
             re.test(r.description) ||
             re.test(r.category) ||
-            re.test(r.amount.toFixed(2)) ||
-            re.test(r.date))
+            re.test(formatAmount(r.amount)) ||
+            re.test(formatDate(r.date)))
         : [...state.records];
     return matches.sort(sorters[state.sortKey] || sorters['date-desc']);
 }
@@ -101,15 +103,31 @@ export function getLast7Days() {
     return days;
 }
 
-export function getOverCapIds(cap) {
-    const ids = new Set();
-    if (!cap || cap <= 0) return ids;
+export function getCapCrossingId(cap) {
+    if (!cap || cap <= 0) return null;
 
     let running = 0;
     const oldestFirst = [...state.records].sort((a, b) => a.date.localeCompare(b.date));
     for (const r of oldestFirst) {
         running += r.amount;
-        if (running > cap) ids.add(r.id);
+        if (running > cap) return r.id;
     }
-    return ids;
+    return null;
+}
+
+
+export function convertAll(from, to, rates) {
+    const table = { USD: 1, ...rates };
+    if (from === to || !table[from] || !table[to]) return;
+
+    const factor = table[to] / table[from];
+    const now = new Date().toISOString();
+
+    for (const r of state.records) {
+        r.amount = Math.round(r.amount * factor * 100) / 100;
+        r.updatedAt = now;
+    }
+    if (state.settings && state.settings.cap) {
+        state.settings.cap = Math.round(state.settings.cap * factor * 100) / 100;
+    }
 }
