@@ -1,11 +1,14 @@
-# Student Finance Tracker
+ Student Finance Tracker
 
-The theme of this assingment is to create a student Finance Tracker
+*Theme:* Student Finance Tracker (ALU Summative, Building Responsive UI)
 
-Demo Video : 
-Author: Bemnet Tenketem ( also known as bgebremich, email b.gebremich@alueducation.com)
+*Live site:* [https://bgebremich.github.io/Summative-assignment-student-finance-tracker/](https://bgebremich.github.io/Summative-assignment-student-finance-tracker/)
 
-What it does:
+*Demo video:*
+
+**Author:** Bemnet Tenketem (GitHub: [bgebremich](https://github.com/bgebremich), email: b.gebremich@alustudent.com)
+
+# What it does #
 - Each transaction is going to be stored as one object and they are all going to be kept in an array in storage created called localstorage.
 
 The settings are stored separetly: this is; base currency, manual EU and RWF rates, as well as the spending cap. Because it's obviousy tied to the settings
@@ -34,4 +37,5 @@ Add, edit and delete transactions, with inline validation messages
 - Spending cap with a polite or assertive live message
 - Currency settings (USD, EUR, RWF) with manual rates
 - Auto-save to localStorage; JSON import (validated) and export
+
 
